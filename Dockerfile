@@ -3,7 +3,6 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# Add a user with a valid home directory
 RUN addgroup --system appgroup && adduser --system --group --home /home/appuser appuser
 ENV HOME=/home/appuser
 

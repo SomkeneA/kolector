@@ -17,6 +17,7 @@ services:
     volumes:
       - static_volume:/app/static
       - media_volume:/app/media
+    command: ["gunicorn", "--workers", "3", "--bind", "0.0.0.0:8000", "kolector.wsgi:application"]
     depends_on:
       db:
         condition: service_healthy

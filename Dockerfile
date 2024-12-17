@@ -12,6 +12,7 @@ WORKDIR /app
 
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir --user -r requirements.txt
+ENV PATH="/home/appuser/.local/bin:${PATH}"
 
 COPY . /app/
 

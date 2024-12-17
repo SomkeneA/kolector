@@ -19,3 +19,10 @@ terraform.tfstate.backup
 .terraform/
 terraform-django/
 credentials/
+
+*.pyo
+*.pyd
+.Python
+build/
+.git/
+*.log

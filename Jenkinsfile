@@ -58,38 +58,36 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 sshagent([SSH_CREDENTIALS_ID]) {
-                    sh '''
-                    ssh -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} << 'EOF'
-                    set -e  # Exit immediately if a command fails
-                    echo "Starting Deployment on EC2..."
+                   sh '''
+                   # Copy the docker-compose.yml to the EC2 instance
+                   scp -o StrictHostKeyChecking=no docker-compose.yml ec2-user@${EC2_HOST}:/home/ec2-user/kolector/
 
-                    # Change to the project directory
-                    cd /home/ec2-user/kolector || exit 1
+                   # SSH into the instance and deploy
+                   ssh -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} << 'EOF'
+                   echo "Starting Deployment on EC2..."
 
-                    # Export environment variables for Docker Compose
-                    export POSTGRES_DB="${POSTGRES_DB}"
-                    export POSTGRES_USER="${POSTGRES_USER}"
-                    export POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
-                    export POSTGRES_HOST="${POSTGRES_HOST}"
-                    export POSTGRES_PORT="${POSTGRES_PORT}"
-                    export DJANGO_ALLOWED_HOSTS="${DJANGO_ALLOWED_HOSTS}"
+                   # Navigate to the deployment directory
+                   cd /home/ec2-user/kolector || exit 1
 
-                    # Stop existing containers, pull the new image, and restart
-                    echo "Stopping existing containers..."
-                    docker-compose down || echo "No containers to stop."
+                   # Set environment variables
+                   export POSTGRES_DB=${POSTGRES_DB}
+                   export POSTGRES_USER=${POSTGRES_USER}
+                   export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+                   export POSTGRES_HOST=${POSTGRES_HOST}
+                   export POSTGRES_PORT=${POSTGRES_PORT}
 
-                    echo "Pulling the latest Docker image..."
-                    docker-compose pull
+                  # Stop old containers and deploy the new image
+                  docker-compose down || true
+                  docker-compose pull
+                  docker-compose up -d
 
-                    echo "Starting the application..."
-                    docker-compose up -d --remove-orphans
-
-                    echo "Deployment completed successfully!"
-EOF
-                    '''
-                }
-            }
+                  echo "Deployment Completed Successfully!"
+            EOF
+            '''
+               }
+           }
         }
+
     }
 
     post {

@@ -49,7 +49,14 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE .'
+                script {
+                    try {
+                        echo "Building Docker image..."
+                        sh 'docker build --build-arg DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE -t $DOCKER_IMAGE .'
+                    } catch (Exception e) {
+                        error "Docker build failed: ${e}"
+                    }
+                }
             }
         }
 
@@ -57,7 +64,9 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh '''
+                    echo "Logging into DockerHub..."
                     docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+                    echo "Pushing Docker image to DockerHub..."
                     docker push $DOCKER_IMAGE
                     '''
                 }
@@ -69,16 +78,23 @@ pipeline {
                 sshagent([SSH_CREDENTIALS_ID]) {
                     sh '''
                     ssh -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} << EOF
-                    echo "Starting Deployment on EC2..."
+                    echo "Deploying application on EC2..."
                     cd /home/ec2-user/kolector
+
+                    # Set environment variables for Django and PostgreSQL
                     export POSTGRES_DB=${POSTGRES_DB}
                     export POSTGRES_USER=${POSTGRES_USER}
                     export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
                     export POSTGRES_HOST=${POSTGRES_HOST}
                     export POSTGRES_PORT=${POSTGRES_PORT}
+                    export DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+
+                    # Pull latest image and restart containers
                     docker-compose down
                     docker-compose pull
-                    docker-compose up -d
+                    docker-compose up -d --remove-orphans
+
+                    echo "Application deployed successfully!"
                     EOF
                     '''
                 }
@@ -88,7 +104,7 @@ pipeline {
 
     post {
         always {
-            echo 'Cleaning up Docker resources...'
+            echo 'Cleaning up unused Docker resources...'
             sh 'docker system prune -f'
             sh 'docker volume prune -f'
         }

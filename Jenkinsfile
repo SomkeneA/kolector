@@ -56,45 +56,37 @@ pipeline {
         }
 
         stage('Deploy to EC2') {
-    steps {
-        sshagent([SSH_CREDENTIALS_ID]) {
-            sh '''
-            set -x  # Enable debug output
+            steps {
+                sshagent([SSH_CREDENTIALS_ID]) {
+                   sh '''
+                   # Copy the docker-compose.yml to the EC2 instance
+                   scp -o StrictHostKeyChecking=no docker-compose.yml ec2-user@${EC2_HOST}:/home/ec2-user/kolector/
 
-            # Copy the docker-compose.yml to the EC2 instance
-            scp -o StrictHostKeyChecking=no docker-compose.yml ec2-user@${EC2_HOST}:/home/ec2-user/kolector/
+                   # SSH into the instance and deploy
+                   ssh -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} << 'EOF'
+                   echo "Starting Deployment on EC2..."
 
-            # SSH into the instance and deploy
-            ssh -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} << 'EOF'
-            set -x  # Enable debug output within SSH session
+                   # Navigate to the deployment directory
+                   cd /home/ec2-user/kolector || exit 1
 
-            echo "Starting Deployment on EC2..."
+                   # Set environment variables
+                   export POSTGRES_DB=db-name
+                   export POSTGRES_USER=db-user
+                   export POSTGRES_PASSWORD=db-password
+                   export POSTGRES_HOST=db-host
+                   export POSTGRES_PORT=db-port
 
-            # Navigate to the deployment directory
-            cd /home/ec2-user/kolector || { echo "Directory not found"; exit 1; }
+                  # Stop old containers and deploy the new image
+                  docker-compose down || true
+                  docker-compose pull
+                  docker-compose up -d
 
-            # Set environment variables
-            export POSTGRES_DB=db-name
-            export POSTGRES_USER=db-user
-            export POSTGRES_PASSWORD=db-password
-            export POSTGRES_HOST=db-host
-            export POSTGRES_PORT=db-port
-
-            # Print environment variables to verify
-            echo "POSTGRES_DB=${POSTGRES_DB}"
-            echo "POSTGRES_HOST=${POSTGRES_HOST}"
-
-            # Stop old containers and deploy the new image
-            docker-compose down || { echo "docker-compose down failed"; exit 1; }
-            docker-compose pull || { echo "docker-compose pull failed"; exit 1; }
-            docker-compose up -d || { echo "docker-compose up failed"; exit 1; }
-
-            echo "Deployment Completed Successfully!"
-EOF
+                  echo "Deployment Completed Successfully!"
+            EOF
             '''
+               }
+           }
         }
-    }
-}
 
     }
 

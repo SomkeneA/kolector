@@ -58,30 +58,30 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 sshagent([SSH_CREDENTIALS_ID]) {
-                   sh '''
-                   # Copy the docker-compose.yml to the EC2 instance
-                   scp -o StrictHostKeyChecking=no docker-compose.yml ec2-user@${EC2_HOST}:/home/ec2-user/kolector/
+                    sh '''
+                    # Copy the docker-compose.yml to the EC2 instance
+                    scp -o StrictHostKeyChecking=no docker-compose.yml ec2-user@${EC2_HOST}:/home/ec2-user/kolector/
 
-                   # SSH into the instance and deploy
-                   ssh -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} << 'EOF'
-                   echo "Starting Deployment on EC2..."
+                    # SSH into the instance and deploy
+                    ssh -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} << 'EOF'
+                    echo "Starting Deployment on EC2..."
 
-                   # Navigate to the deployment directory
-                   cd /home/ec2-user/kolector || exit 1
+                    # Navigate to the deployment directory
+                    cd /home/ec2-user/kolector || exit 1
 
-                   # Set environment variables
-                   export POSTGRES_DB=db-name
-                   export POSTGRES_USER=db-user
-                   export POSTGRES_PASSWORD=db-password
-                   export POSTGRES_HOST=db-host
-                   export POSTGRES_PORT=db-port
+                    # Set environment variables
+                    export POSTGRES_DB=db-name
+                    export POSTGRES_USER=db-user
+                    export POSTGRES_PASSWORD=db-password
+                    export POSTGRES_HOST=db-host
+                    export POSTGRES_PORT=db-port
 
-                  # Stop old containers and deploy the new image
-                  docker-compose down || true
-                  docker-compose pull
-                  docker-compose up -d
+                    # Stop old containers and deploy the new image
+                    docker-compose down || true
+                    docker-compose pull
+                    docker-compose up -d
 
-                  echo "Deployment Completed Successfully!"
+                    echo "Deployment Completed Successfully!"
             EOF
             '''
                }

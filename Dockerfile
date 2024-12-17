@@ -44,5 +44,4 @@ USER appuser
 # Expose application port
 EXPOSE 8000
 
-# Command to start the application
 CMD ["gunicorn", "--workers", "3", "--bind", "0.0.0.0:8000", "kolector.wsgi:application"]

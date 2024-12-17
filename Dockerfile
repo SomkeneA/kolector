@@ -25,7 +25,7 @@ ENV PATH="/home/appuser/.local/bin:${PATH}"
 COPY . /app/
 
 # Collect static files
-RUN python manage.py collectstatic --noinput
+RUN python manage.py collectstatic --noinput --settings=kolector.settings.prod
 
 # Expose port and run the application
 EXPOSE 8000

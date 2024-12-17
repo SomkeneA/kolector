@@ -19,6 +19,8 @@ DATABASES = {
 # CORS settings for production
 CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 # Additional production settings
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True

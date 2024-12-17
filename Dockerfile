@@ -10,7 +10,7 @@ RUN addgroup --system appgroup && adduser --system --group --home /home/appuser 
 # Set the working directory
 WORKDIR /app
 
-# Install system dependencies for PostgreSQL
+# Install system dependencies for PostgreSQL and curl
 RUN apt-get update && apt-get install -y \
     libpq-dev gcc build-essential curl && \
     apt-get clean
@@ -28,9 +28,6 @@ COPY . /app/
 
 # Create staticfiles directory with appropriate permissions
 RUN mkdir -p /app/staticfiles && chmod -R 755 /app/staticfiles
-
-# Set environment variable to indicate build phase
-ENV BUILD_PHASE=True
 
 # Collect static files
 RUN python manage.py collectstatic --noinput --clear --settings=kolector.settings.prod

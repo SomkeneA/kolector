@@ -58,23 +58,28 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 sshagent([SSH_CREDENTIALS_ID]) {
-                    sh '''
-                    ssh -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} << EOF
-                    echo "Copying environment variables..."
-                    cat << 'ENV' > /home/ec2-user/kolector/.env
-POSTGRES_DB=${POSTGRES_DB}
-POSTGRES_USER=${POSTGRES_USER}
-POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-POSTGRES_HOST=${POSTGRES_HOST}
-DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
-ENV
+            sh '''
+            ssh -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} << 'EOF'
+                echo "Deploying application on EC2..."
+                cd /home/ec2-user/kolector
+                
+                # Set environment variables for Django and PostgreSQL
+                export POSTGRES_DB="${POSTGRES_DB}"
+                export POSTGRES_USER="${POSTGRES_USER}"
+                export POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
+                export POSTGRES_HOST="${POSTGRES_HOST}"
+                export POSTGRES_PORT="${POSTGRES_PORT}"
+                export DJANGO_ALLOWED_HOSTS="${DJANGO_ALLOWED_HOSTS}"
+                
+                # Stop, pull, and restart containers
+                docker-compose down
+                docker-compose pull
+                docker-compose up -d --remove-orphans
 
-                    cd /home/ec2-user/kolector
-                    docker-compose down
-                    docker-compose pull
-                    docker-compose up -d --remove-orphans --env-file .env
-                    EOF
-                    '''
+                echo "Application deployed successfully!"
+            EOF
+            '''
+            
                 }
             }
         }

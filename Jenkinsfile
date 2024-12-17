@@ -70,11 +70,11 @@ pipeline {
                    cd /home/ec2-user/kolector || exit 1
 
                    # Set environment variables
-                   export POSTGRES_DB=${POSTGRES_DB}
-                   export POSTGRES_USER=${POSTGRES_USER}
-                   export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-                   export POSTGRES_HOST=${POSTGRES_HOST}
-                   export POSTGRES_PORT=${POSTGRES_PORT}
+                   export POSTGRES_DB=db-name
+                   export POSTGRES_USER=db-user
+                   export POSTGRES_PASSWORD=db-password
+                   export POSTGRES_HOST=db-host
+                   export POSTGRES_PORT=db-port
 
                   # Stop old containers and deploy the new image
                   docker-compose down || true

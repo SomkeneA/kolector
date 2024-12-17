@@ -15,13 +15,10 @@ RUN apt-get update && apt-get install -y \
     libpq-dev gcc build-essential curl && \
     apt-get clean
 
-# Install Python dependencies
+# Install Python dependencies (GLOBAL install instead of --user)
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir --user -r requirements.txt \
+RUN pip install --no-cache-dir -r requirements.txt \
     && echo "Installed Python dependencies."
-
-# Set PATH for installed user packages
-ENV PATH="/home/appuser/.local/bin:${PATH}"
 
 # Copy project files
 COPY . /app/
@@ -44,4 +41,5 @@ USER appuser
 # Expose application port
 EXPOSE 8000
 
+# Command to start the application
 CMD ["gunicorn", "--workers", "3", "--bind", "0.0.0.0:8000", "kolector.wsgi:application"]

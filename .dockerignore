@@ -1,12 +1,26 @@
-.git
+# Ignore virtual environments
+venv/
+
+# Ignore local development database
+db.sqlite3
+
+# Ignore collected static files
+staticfiles/
+
+# Ignore Terraform files and configurations
+terraform-django/
+
+# Ignore Python cache files
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# Ignore other common files
 *.log
-*.sqlite3
 *.tar
 *.gz
+.env
+.DS_Store
 node_modules/
 tmp/
-.env

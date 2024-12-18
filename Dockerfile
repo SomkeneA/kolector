@@ -45,4 +45,4 @@ USER appuser
 EXPOSE 8000
 
 CMD ["gunicorn", "--workers", "3", "--bind", "0.0.0.0:8000", "kolector.wsgi:application"]
->>>>>>> parent of 8fa386a (dockerfile)
+

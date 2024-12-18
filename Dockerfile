@@ -3,6 +3,7 @@ FROM python:3.11-slim
 # Environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV BUILD_PHASE=True
 
 # Create appuser and group
 RUN addgroup --system appgroup && adduser --system --group --home /home/appuser appuser
@@ -24,7 +25,7 @@ RUN pip install --no-cache-dir -r requirements.txt \
 # Copy project files
 COPY . /app/
 
-# Create staticfiles directory with appropriate permissions
+# Create staticfiles directory
 RUN mkdir -p /app/staticfiles && chmod -R 755 /app/staticfiles
 
 # Collect static files

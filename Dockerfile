@@ -17,20 +17,9 @@ RUN apt-get update && apt-get install -y \
 
 # Install Python dependencies
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir --user -r requirements.txt \
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir gunicorn \
     && echo "Installed Python dependencies."
-
-# Set PATH for installed user packages (for both root and appuser)
-ENV PATH="/home/appuser/.local/bin:${PATH}"
-
-# Switch to the appuser before installing gunicorn
-USER appuser
-
-# Install gunicorn as appuser
-RUN pip install --no-cache-dir gunicorn
-
-# Switch back to root to copy application files and set permissions
-USER root
 
 # Copy project files
 COPY . /app/
@@ -44,7 +33,7 @@ RUN python manage.py collectstatic --noinput --clear --settings=kolector.setting
 # Change ownership of /app to appuser
 RUN chown -R appuser:appgroup /app
 
-# Switch back to the appuser
+# Switch to the appuser
 USER appuser
 
 # Expose application port

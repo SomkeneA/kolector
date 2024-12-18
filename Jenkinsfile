@@ -32,7 +32,6 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            timeout(time: 10, unit: 'MINUTES')
             steps {
                 script {
                     sh '''

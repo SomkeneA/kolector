@@ -10,10 +10,6 @@ __pycache__/
 
 Kolectorkey.pem
 
-staticfiles/
-media/
-
-
 terraform.tfstate
 terraform.tfstate.backup
 .terraform/
@@ -26,3 +22,58 @@ credentials/
 build/
 .git/
 *.log
+
+# Ignore logs and tmp files
+tmp/
+*.sqlite3
+
+# Ignore local development files
+*.env
+*.DS_Store
+
+# Ignore Git files
+.git
+.gitignore
+
+# Ignore IDE and editor files
+.vscode/
+*.swp
+*.sublime-project
+*.sublime-workspace
+
+# Ignore media and static files (optional)
+static/
+media/
+staticfiles/
+
+# Ignore node_modules and other large directories
+node_modules/
+
+# Ignore Git directories and files
+.git
+.gitignore
+
+# Ignore Python cache and bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore local environment and secrets
+.env
+*.env
+
+# Ignore temporary, log, and database files
+tmp/
+*.log
+*.sqlite3
+
+# Ignore static and media files if not needed in the build
+static/
+media/
+
+# Ignore large files or directories
+*.tar
+*.zip
+node_modules/
+

@@ -69,14 +69,6 @@ pipeline {
                    # Navigate to the deployment directory
                    cd /home/ec2-user/kolector || exit 1
 
-                   # Set environment variables
-                   export POSTGRES_DB=${POSTGRES_DB}
-                   export POSTGRES_USER=${POSTGRES_USER}
-                   export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-                   export POSTGRES_HOST=${POSTGRES_HOST}
-                   export POSTGRES_PORT=${POSTGRES_PORT}
-
-
                   # Stop old containers and deploy the new image
                   docker-compose down || true
                   docker-compose pull

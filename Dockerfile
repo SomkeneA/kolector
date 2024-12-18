@@ -29,7 +29,7 @@ COPY . /app/
 RUN mkdir -p /app/staticfiles && chmod -R 755 /app/staticfiles
 
 # Collect static files
-RUN python manage.py collectstatic --noinput --clear --settings=kolector.settings.prod
+RUN python manage.py collectstatic --clear --settings=kolector.settings.prod
 
 # Change ownership of /app to appuser
 RUN chown -R appuser:appgroup /app

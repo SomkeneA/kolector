@@ -1,38 +1,37 @@
-FROM python:3.11-slim
+# Stage 1: Build stage
+FROM python:3.11-slim as builder
 
-# Environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Create appuser and group
-RUN addgroup --system appgroup && adduser --system --group --home /home/appuser appuser
-
-# Set the working directory
-WORKDIR /app
-
-# Install system dependencies for PostgreSQL
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     libpq-dev gcc build-essential curl && \
     apt-get clean
 
-# Install Python dependencies (GLOBAL install instead of --user)
+# Set working directory
+WORKDIR /app
+
+# Copy dependencies and install them
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt \
-    && echo "Installed Python dependencies."
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
+# Copy only necessary files
 COPY . /app/
-
-# Create staticfiles directory with appropriate permissions
-RUN mkdir -p /app/staticfiles && chmod -R 755 /app/staticfiles
-
-# Set environment variable to indicate build phase
-ENV BUILD_PHASE=True
 
 # Collect static files
 RUN python manage.py collectstatic --noinput --clear --settings=kolector.settings.prod
 
-# Change ownership of /app to appuser
+# Stage 2: Runtime stage
+FROM python:3.11-slim
+
+# Create appuser and group
+RUN addgroup --system appgroup && adduser --system --group --home /home/appuser appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy files from the build stage
+COPY --from=builder /app /app
+
+# Change ownership of /app
 RUN chown -R appuser:appgroup /app
 
 # Switch to the appuser

@@ -1,8 +1,8 @@
 FROM python:3.11-slim
 
 # Environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Create appuser and group
 RUN addgroup --system appgroup && adduser --system --group --home /home/appuser appuser

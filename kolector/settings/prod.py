@@ -1,27 +1,23 @@
+from decouple import config
 from .base import *
-import os
 
 DEBUG = False
-
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='').split(',')
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB', 'kolector-db'),
-        'USER': os.environ.get('POSTGRES_USER', 'db-user'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
-        'HOST': os.environ.get('POSTGRES_HOST', '127.0.0.1'),  
-        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        'NAME': config('POSTGRES_DB'),
+        'USER': config('POSTGRES_USER'),
+        'PASSWORD': config('POSTGRES_PASSWORD'),
+        'HOST': config('POSTGRES_HOST'),
+        'PORT': config('POSTGRES_PORT', cast=int, default=5432),
     }
 }
 
-# CORS settings for production
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
 
-STATIC_ROOT = '/app/staticfiles'
-
-# Additional production settings
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True

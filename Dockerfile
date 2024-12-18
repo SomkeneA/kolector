@@ -20,8 +20,17 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir --user -r requirements.txt \
     && echo "Installed Python dependencies."
 
-# Set PATH for installed user packages
+# Set PATH for installed user packages (for both root and appuser)
 ENV PATH="/home/appuser/.local/bin:${PATH}"
+
+# Switch to the appuser before installing gunicorn
+USER appuser
+
+# Install gunicorn as appuser
+RUN pip install --no-cache-dir gunicorn
+
+# Switch back to root to copy application files and set permissions
+USER root
 
 # Copy project files
 COPY . /app/
@@ -29,20 +38,17 @@ COPY . /app/
 # Create staticfiles directory with appropriate permissions
 RUN mkdir -p /app/staticfiles && chmod -R 755 /app/staticfiles
 
-# Set environment variable to indicate build phase
-ENV BUILD_PHASE=True
-
 # Collect static files
 RUN python manage.py collectstatic --noinput --clear --settings=kolector.settings.prod
 
 # Change ownership of /app to appuser
 RUN chown -R appuser:appgroup /app
 
-# Switch to the appuser
+# Switch back to the appuser
 USER appuser
 
 # Expose application port
 EXPOSE 8000
 
+# Command to start the application
 CMD ["gunicorn", "--workers", "3", "--bind", "0.0.0.0:8000", "kolector.wsgi:application"]
-

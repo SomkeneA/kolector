@@ -18,6 +18,8 @@ DATABASES = {
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+ROOT_URLCONF = 'kolector.urls'
+
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
